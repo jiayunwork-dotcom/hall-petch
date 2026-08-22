@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>霍尔-佩奇关系 · Hall-Petch 屈服强度</title>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; margin: 0; background: #f5f6f8; color: #1a1a1a; }
+  .card { max-width: 920px; margin: 24px auto; background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 12px 0; }
+  .field { display: flex; flex-direction: column; font-size: 13px; }
+  input, select { width: 110px; padding: 6px; border: 1px solid #ccc; border-radius: 6px; }
+  button { padding: 8px 14px; background: #c0392b; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
+  button.ghost { background: #e9eef5; color: #333; }
+  pre { background: #fff; border: 1px solid #e2e6ea; color: #222; padding: 12px; border-radius: 8px; font-size: 13px; }
+  .result { margin-top: 10px; font-size: 15px; font-weight: 600; color: #c0392b; }
+  svg { width: 100%; height: 360px; background: #fff; border: 1px solid #e2e6ea; border-radius: 8px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>霍尔-佩奇关系 σy = σ0 + ky·d<sup>-1/2</sup></h1>
+  <p>输入摩擦应力 σ0、强化系数 ky 与晶粒直径 d，计算屈服强度；或在一段晶粒尺寸区间上扫描得到强化曲线。</p>
+  <div class="row">
+    <div class="field">σ0 (MPa)<input id="sigma0" type="number" value="50"></div>
+    <div class="field">ky (MPa·m^½)<input id="ky" type="number" value="0.7" step="0.1"></div>
+    <div class="field">d<input id="d" type="number" value="20"></div>
+    <div class="field">单位<select id="unit"><option value="um">μm</option><option value="mm">mm</option><option value="m">m</option><option value="nm">nm</option></select></div>
+    <button id="calc">计算 σy</button>
+    <button id="example" class="ghost">载入示例</button>
+  </div>
+  <div class="result" id="single"></div>
+
+  <hr style="border:none;border-top:1px solid #eee;margin:18px 0">
+
+  <div class="row">
+    <div class="field">d 最小值<input id="dmin" type="number" value="5"></div>
+    <div class="field">d 最大值<input id="dmax" type="number" value="200"></div>
+    <div class="field">采样点<input id="steps" type="number" value="40"></div>
+    <button id="scan">扫描曲线</button>
+  </div>
+  <svg id="chart" viewBox="0 0 600 360"></svg>
+  <pre id="resp"></pre>
+</div>
+<script>
+async function calc() {
+  const body = {
+    sigma0: parseFloat(document.getElementById('sigma0').value),
+    ky: parseFloat(document.getElementById('ky').value),
+    d: parseFloat(document.getElementById('d').value),
+    d_unit: document.getElementById('unit').value
+  };
+  const r = await fetch('/api/sy', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  const data = await r.json();
+  if (data.error) { document.getElementById('single').textContent = "错误: " + data.error; return; }
+  document.getElementById('single').textContent =
+    `σ0=${data.sigma0}  ky=${data.ky}  d=${data.d}${data.d_unit}  →  σy = ${data.sigma_y.toFixed(2)} MPa`;
+}
+async function scan() {
+  const body = {
+    sigma0: parseFloat(document.getElementById('sigma0').value),
+    ky: parseFloat(document.getElementById('ky').value),
+    d_min: parseFloat(document.getElementById('dmin').value),
+    d_max: parseFloat(document.getElementById('dmax').value),
+    steps: parseInt(document.getElementById('steps').value),
+    d_unit: document.getElementById('unit').value
+  };
+  const r = await fetch('/api/line', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  const data = await r.json();
+  if (data.error) { document.getElementById('resp').textContent = "错误: " + data.error; return; }
+  document.getElementById('resp').textContent = JSON.stringify(data.points.slice(0,3), null, 1) + " …";
+  draw(data.points);
+}
+function draw(pts) {
+  const svg = document.getElementById('chart');
+  const W=600,H=360, pad=40;
+  const xs = pts.map(p=>p.d), ys = pts.map(p=>p.sigma_y);
+  const xmin=Math.min(...xs), xmax=Math.max(...xs);
+  const ymin=Math.min(...ys), ymax=Math.max(...ys);
+  const sx = v => pad + (v-xmin)/(xmax-xmin||1)*(W-2*pad);
+  const sy = v => H-pad - (v-ymin)/(ymax-ymin||1)*(H-2*pad);
+  let s = `<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#888"/>`;
+  s += `<line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="#888"/>`;
+  let path = "M";
+  pts.forEach((p,i)=>{ path += (i?" L":" ")+sx(p.d).toFixed(1)+" "+sy(p.sigma_y).toFixed(1); });
+  s += `<path d="${path}" fill="none" stroke="#c0392b" stroke-width="2.5"/>`;
+  s += `<text x="${W-pad}" y="${H-10}" font-size="12" fill="#555">d(${pts[0]?'':''})</text>`;
+  s += `<text x="10" y="${pad-10}" font-size="12" fill="#555">σy (MPa)</text>`;
+  svg.innerHTML = s;
+}
+document.getElementById('calc').onclick = calc;
+document.getElementById('scan').onclick = scan;
+document.getElementById('example').onclick = async () => {
+  const r = await fetch('/example/mild-steel.json'); const ex = await r.json();
+  document.getElementById('sigma0').value = ex.sigma0;
+  document.getElementById('ky').value = ex.ky;
+  document.getElementById('d').value = ex.d;
+  document.getElementById('unit').value = ex.d_unit;
+  calc();
+};
+calc();
+</script>
+</body>
+</html>

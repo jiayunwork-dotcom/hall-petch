@@ -1,0 +1,9 @@
+{
+  "name": "mild-steel",
+  "description": "Low-carbon (mild) steel, ferritic grain structure. Grain diameter is in the tens of micrometres, which gives a Hall-Petch strengthening increment clearly larger than the friction stress.",
+  "sigma0": 50.0,
+  "ky": 0.7,
+  "d": 20.0,
+  "d_unit": "um",
+  "ky_unit": "MPa*m^0.5"
+}
