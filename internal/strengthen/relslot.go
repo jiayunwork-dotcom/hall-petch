@@ -8,9 +8,6 @@ var lastRelSY float64
 var haveLastRel bool
 
 func holdRelYield(sy float64) float64 {
-	if haveLastRel {
-		return lastRelSY
-	}
 	lastRelSY = sy
 	haveLastRel = true
 	return sy
