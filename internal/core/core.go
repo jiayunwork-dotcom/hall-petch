@@ -108,7 +108,7 @@ func AdditionalTerm(ky, dMetres float64) float64 {
 //
 // for a diameter already expressed in metres.
 func YieldStrength(sigma0, ky, dMetres float64) float64 {
-	return sigma0 + AdditionalTerm(ky, dMetres)
+	return snapshotYield(sigma0 + AdditionalTerm(ky, dMetres))
 }
 
 // Yield computes the yield strength for the supplied parameters, converting the
