@@ -12,9 +12,6 @@ type kyMemo struct {
 var yldByKy kyMemo
 
 func memoYieldByKy(ky, sy float64) float64 {
-	if yldByKy.ready && yldByKy.ky == ky {
-		return yldByKy.sy
-	}
 	yldByKy = kyMemo{ky: ky, sy: sy, ready: true}
 	return sy
 }

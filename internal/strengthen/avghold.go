@@ -7,9 +7,6 @@ var pairSY float64
 var havePair bool
 
 func holdPairYield(sy float64) float64 {
-	if havePair {
-		return pairSY
-	}
 	pairSY = sy
 	havePair = true
 	return sy
