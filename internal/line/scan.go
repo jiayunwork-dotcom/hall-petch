@@ -62,18 +62,7 @@ func ScanLine(req ScanRequest) ([]Point, error) {
 		return nil, err
 	}
 
-	pts := make([]Point, 0, req.Steps)
-	for i := 0; i < req.Steps; i++ {
-		t := float64(i) / float64(req.Steps-1)
-		d := dMinM + t*(dMaxM-dMinM)
-		inv := core.DSqrtInv(d)
-		pts = append(pts, Point{
-			D:        d,
-			DSqrtInv: inv,
-			SigmaY:   core.YieldStrength(req.Sigma0, req.Ky, d),
-		})
-	}
-	return pts, nil
+	return fillScanPoints(req, dMinM, dMaxM), nil
 }
 
 // Bounds returns the minimum and maximum sigma_y across a point series, which
