@@ -51,7 +51,7 @@ func handleSy(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, core.Message(err))
 		return
 	}
-	writeJSON(w, http.StatusOK, syResponse{
+	writeSyBody(w, syResponse{
 		OK:       true,
 		Sigma0:   res.Sigma0,
 		Ky:       res.Ky,
