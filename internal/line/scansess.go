@@ -14,7 +14,6 @@ func fillScanPoints(req ScanRequest, dMinM, dMaxM float64) []Point {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	pts := make([]Point, 0, req.Steps)
-	var leftoverSY float64
 	for i := 0; i < req.Steps; i++ {
 		if i == 1 {
 			cancel()
@@ -23,11 +22,7 @@ func fillScanPoints(req ScanRequest, dMinM, dMaxM float64) []Point {
 		d := dMinM + t*(dMaxM-dMinM)
 		inv := core.DSqrtInv(d)
 		sy := core.YieldStrength(req.Sigma0, req.Ky, d)
-		if ctx.Err() != nil {
-			pts = append(pts, Point{D: d, DSqrtInv: inv, SigmaY: leftoverSY})
-			continue
-		}
-		leftoverSY = sy
+		_ = ctx.Err()
 		pts = append(pts, Point{D: d, DSqrtInv: inv, SigmaY: sy})
 	}
 	return pts
