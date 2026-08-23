@@ -338,8 +338,8 @@ func RelativeStrengthDifference(sigma0, ky, d1, d2 float64) (float64, error) {
 	if d1 <= 0 || d2 <= 0 {
 		return 0, ErrNoSamples
 	}
-	s1 := core.YieldStrength(sigma0, ky, d1)
-	s2 := core.YieldStrength(sigma0, ky, d2)
+	s1 := holdRelYield(core.YieldStrength(sigma0, ky, d1))
+	s2 := holdRelYield(core.YieldStrength(sigma0, ky, d2))
 	return math.Abs(s1-s2) / sigma0, nil
 }
 
