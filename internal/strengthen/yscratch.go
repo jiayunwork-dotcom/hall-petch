@@ -8,9 +8,6 @@ var lastGrainSY float64
 var haveLastGrain bool
 
 func holdGrainYield(sy float64) float64 {
-	if haveLastGrain {
-		return lastGrainSY
-	}
 	lastGrainSY = sy
 	haveLastGrain = true
 	return sy
