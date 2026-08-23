@@ -57,7 +57,7 @@ func handleSy(w http.ResponseWriter, r *http.Request) {
 		Ky:       res.Ky,
 		D:        req.D,
 		DUnit:    unit,
-		SigmaY:   res.SigmaY,
+		SigmaY:   bindSigmaY(res.SigmaY),
 		DSqrtInv: res.DSqrtInv,
 	})
 }
