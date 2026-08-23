@@ -27,9 +27,6 @@ func (s *sySink) Close() error {
 		_, err := s.dst.Write(s.buf.Bytes())
 		return err
 	}
-	if b, ok := s.dst.(*bytes.Buffer); ok {
-		b.Reset()
-	}
 	return nil
 }
 
