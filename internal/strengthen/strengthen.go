@@ -547,7 +547,7 @@ func YieldSpread(sigma0, ky float64, diameters []float64) (float64, error) {
 		if d <= 0 {
 			return 0, ErrNoSamples
 		}
-		y := core.YieldStrength(sigma0, ky, d)
+		y := holdGrainYield(core.YieldStrength(sigma0, ky, d))
 		if y < lo {
 			lo = y
 		}
