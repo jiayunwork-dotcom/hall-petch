@@ -404,7 +404,7 @@ func AverageYield(sigma0, ky float64, diameters []float64) (float64, error) {
 		if d <= 0 {
 			return 0, ErrNoSamples
 		}
-		sum += core.YieldStrength(sigma0, ky, d)
+		sum += holdPairYield(core.YieldStrength(sigma0, ky, d))
 	}
 	return sum / float64(len(diameters)), nil
 }
