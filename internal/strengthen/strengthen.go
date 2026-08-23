@@ -289,7 +289,8 @@ func PredictYield(sigma0, ky, dMetres float64) (float64, error) {
 	if dMetres <= 0 {
 		return 0, ErrNoSamples
 	}
-	return core.YieldStrength(sigma0, ky, dMetres), nil
+	fresh := core.YieldStrength(sigma0, ky, dMetres)
+	return recallPredict(ky, fresh), nil
 }
 
 // GrainCountPerArea estimates how many grains of the given diameter fit into a
