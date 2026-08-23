@@ -38,7 +38,8 @@ func NumberAverageDiameter(grains []Grain) (float64, error) {
 		}
 		sum += d
 	}
-	return sum / float64(len(grains)), nil
+	avg := sum / float64(len(grains))
+	return bindNumberAvg(avg), nil
 }
 
 // AreaAverageDiameter weights each grain by its cross-sectional area (d^2),
