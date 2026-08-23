@@ -268,18 +268,7 @@ func HarmonicDiameter(grains []Grain) (float64, error) {
 	if len(grains) == 0 {
 		return 0, ErrNoSamples
 	}
-	sum := 0.0
-	for _, g := range grains {
-		d, e := core.ToMetres(g.Diameter, g.Unit)
-		if e != nil {
-			return 0, e
-		}
-		if d <= 0 {
-			return 0, ErrNoSamples
-		}
-		sum += 1.0 / d
-	}
-	return float64(len(grains)) / sum, nil
+	return fillHarmonic(grains)
 }
 
 // PredictYield wraps the forward Hall-Petch law for a diameter in canonical
